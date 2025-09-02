@@ -1,4 +1,4 @@
-import { Plus, Sun, Moon } from "lucide-react";
+import { Plus, Sun, Moon, EggOff } from "lucide-react";
 import { useState } from "react";
 import { getCountryFlag } from "../utils/countryFlags";
 import { TIMEZONE_DATA } from "../timezones";
@@ -143,10 +143,8 @@ export function FriendsList({
 			setLongPressActive(friend.id);
 
 			const timeout = window.setTimeout(() => {
-				// Check if this friend is still being pressed
-				if (longPressActive === friend.id) {
-					handleLongPress(friend, event);
-				}
+				// Trigger long press - don't check state since it's async
+				handleLongPress(friend, event);
 				setLongPressActive(null);
 			}, 600);
 
@@ -183,6 +181,10 @@ export function FriendsList({
 			onTouchEnd: end,
 			onMouseLeave: clear,
 			onTouchCancel: clear,
+			onContextMenu: (e: React.MouseEvent) => {
+				// Prevent browser context menu on right-click
+				e.preventDefault();
+			},
 		};
 	};
 
@@ -199,97 +201,126 @@ export function FriendsList({
 			{/* Scrollable friends list */}
 			<div className='flex-1 overflow-y-auto px-4 native-scroll'>
 				<div className='py-4'>
-					{sortedFriends.map((friend, index) => {
-						const longPressProps = createLongPressHandlers(friend);
-						const [time, ampm] = formatTime(
-							currentTime,
-							friend.timezone
-						);
-						const [timeOfDay, color] = getTimeOfDay(
-							currentTime,
-							friend.timezone
-						);
-						const [relativeDay, offset] = getDateForTimezone(
-							currentTime,
-							friend.timezone
-						);
-
-						return (
-							<div key={friend.id}>
-								<div
-									data-friend-id={friend.id}
-									className={`bg-white/80 backdrop-blur rounded-2xl p-2 border border-gray-100/50 ios-card flex justify-between items-center cursor-pointer select-none long-press-card ${
-										longPressActive === friend.id
-											? "long-press-active"
-											: ""
-									}`}
-									{...longPressProps}
-								>
-									<div className='flex-1'>
-										<div className='flex items-center justify-between'>
-											<h3 className='text-xl font-medium text-black m-0'>
-												{friend.name}
-											</h3>
-										</div>
-										<div className='flex items-center gap-1 text-gray-600 text-sm mb-1'>
-											<span className='text-sm'>
-												{getCountryFlag(
-													getCountryForTimezone(friend.timezone)
-												)}
-											</span>
-											<span>
-												{friend.customLocation ||
-													friend.timezoneDisplay ||
-													friend.timezone.replace("_", " ")}
-											</span>
-										</div>
-										<div
-											className={`${colorMap[color]} text-xs font-medium`}
-										>
-											{timeOfDay}
-										</div>
-									</div>
-									<div className='text-right flex flex-col items-end gap-1'>
-										<div className='flex items-center gap-2'>
-											{getDayOrNight(currentTime, friend.timezone) ===
-											"day" ? (
-												<Sun size={16} className='text-yellow-500' />
-											) : (
-												<Moon size={16} className='text-blue-500' />
-											)}
-											<span className='text-2xl font-mono font-semibold text-black'>
-												{time}
-												<span className='ml-1 text-sm'>
-													{ampm ? ampm : null}
-												</span>
-											</span>
-										</div>
-										<span className='text-sm text-gray-400'>
-											{relativeDay}{" "}
-											<span className='text-xs'>{offset}</span>
-										</span>
-									</div>
-								</div>
-								{/* Divider between friends */}
-								{index < sortedFriends.length - 1 && (
-									<div className='h-3' />
-								)}
+					{sortedFriends.length === 0 ? (
+						/* Empty state */
+						<div className='flex-1 flex flex-col items-center justify-center h-full min-h-[300px] text-center px-6'>
+							<div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6'>
+								<EggOff size={32} className='text-gray-400' />
 							</div>
-						);
-					})}
+							<h3 className='text-xl font-semibold text-gray-800 mb-2'>
+								No timezones added yet
+							</h3>
+							<p className='text-gray-500 mb-8 max-w-sm'>
+								Add friends, family, or colleagues to track their time
+								zones and stay connected across the globe.
+							</p>
+							<button
+								onClick={onAddFriend}
+								className='bg-sky-600 text-white px-8 py-3 rounded-2xl text-base font-medium native-button shadow-lg shadow-sky-600/25'
+							>
+								Add your first timezone
+							</button>
+						</div>
+					) : (
+						sortedFriends.map((friend, index) => {
+							const longPressProps = createLongPressHandlers(friend);
+							const [time, ampm] = formatTime(
+								currentTime,
+								friend.timezone
+							);
+							const [timeOfDay, color] = getTimeOfDay(
+								currentTime,
+								friend.timezone
+							);
+							const [relativeDay, offset] = getDateForTimezone(
+								currentTime,
+								friend.timezone
+							);
+
+							return (
+								<div key={friend.id}>
+									<div
+										data-friend-id={friend.id}
+										className={`bg-white/80 backdrop-blur rounded-2xl p-2 border border-gray-100/50 ios-card flex justify-between items-center cursor-pointer select-none long-press-card ${
+											longPressActive === friend.id
+												? "long-press-active"
+												: ""
+										}`}
+										{...longPressProps}
+									>
+										<div className='flex-1'>
+											<div className='flex items-center justify-between'>
+												<h3 className='text-xl font-medium text-black m-0'>
+													{friend.name}
+												</h3>
+											</div>
+											<div className='flex items-center gap-1 text-gray-600 text-sm mb-1'>
+												<span className='text-sm'>
+													{getCountryFlag(
+														getCountryForTimezone(friend.timezone)
+													)}
+												</span>
+												<span>
+													{friend.customLocation ||
+														friend.timezoneDisplay ||
+														friend.timezone.replace("_", " ")}
+												</span>
+											</div>
+											<div
+												className={`${colorMap[color]} text-xs font-medium`}
+											>
+												{timeOfDay}
+											</div>
+										</div>
+										<div className='text-right flex flex-col items-end gap-1'>
+											<div className='flex items-center gap-2'>
+												{getDayOrNight(
+													currentTime,
+													friend.timezone
+												) === "day" ? (
+													<Sun
+														size={16}
+														className='text-yellow-500'
+													/>
+												) : (
+													<Moon size={16} className='text-blue-500' />
+												)}
+												<span className='text-2xl font-mono font-semibold text-black'>
+													{time}
+													<span className='ml-1 text-sm'>
+														{ampm ? ampm : null}
+													</span>
+												</span>
+											</div>
+											<span className='text-sm text-gray-400'>
+												{relativeDay}{" "}
+												<span className='text-xs'>{offset}</span>
+											</span>
+										</div>
+									</div>
+									{/* Divider between friends */}
+									{index < sortedFriends.length - 1 && (
+										<div className='h-3' />
+									)}
+								</div>
+							);
+						})
+					)}
 				</div>
 			</div>
 
 			{/* Fixed add button */}
-			<div className='px-4 pb-2 pt-4 bg-white/95 backdrop-blur'>
-				<button
-					className='w-full bg-sky-600 text-white border-none py-4 rounded-2xl text-base cursor-pointer flex items-center justify-center gap-2 native-button shadow-lg shadow-sky-600/25'
-					onClick={onAddFriend}
-				>
-					<Plus size={20} />
-					Add new
-				</button>
-			</div>
+			{sortedFriends.length > 0 && (
+				<div className='px-4 pb-2 pt-4 bg-white/95 backdrop-blur'>
+					<button
+						className='w-full bg-sky-600 text-white border-none py-4 rounded-2xl text-base cursor-pointer flex items-center justify-center gap-2 native-button shadow-lg shadow-sky-600/25'
+						onClick={onAddFriend}
+					>
+						<Plus size={20} />
+						Add new
+					</button>
+				</div>
+			)}
 
 			{/* Context Menu */}
 			{contextMenu && (
