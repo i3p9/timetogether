@@ -20,7 +20,6 @@ export function TimeDisplay({
 	currentTime,
 	formatTime,
 	getUserTimezone,
-	showSettings,
 	onSettingsToggle,
 }: TimeDisplayProps) {
 	const userTimeZone = getUserTimezone();

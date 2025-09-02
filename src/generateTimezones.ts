@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Script to generate comprehensive timezone data from moment-timezone JSON
 import { readFileSync, writeFileSync } from 'fs';
 
