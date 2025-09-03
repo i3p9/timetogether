@@ -4,6 +4,7 @@ import PWABadge from './PWABadge.tsx'
 import { storage } from './storage'
 import { HomePage } from './pages/Home'
 import { SettingsPage } from './pages/Settings'
+import { OrientationPrompt } from './components/OrientationPrompt'
 import './App.css'
 
 interface Settings {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage settings={settings} onSettingsChange={setSettings} />} />
       </Routes>
       <PWABadge />
+      <OrientationPrompt />
     </Router>
   )
 }

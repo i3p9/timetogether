@@ -18,6 +18,7 @@ export function InstallPrompt() {
 			"(display-mode: standalone)"
 		).matches;
 		const isInWebAppiOS =
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(window.navigator as any).standalone === true;
 
 		if (isStandalone || isInWebAppiOS) {
@@ -40,7 +41,7 @@ export function InstallPrompt() {
 				!dismissed ||
 				Date.now() - parseInt(dismissed) > 24 * 60 * 60 * 1000
 			) {
-				setTimeout(() => setShowPrompt(true), 2000);
+				setTimeout(() => setShowPrompt(true), 1000);
 			}
 			return;
 		}
@@ -74,7 +75,7 @@ export function InstallPrompt() {
 				if (!deferredPrompt && !isInstalled) {
 					setShowPrompt(true);
 				}
-			}, 3000);
+			}, 2000);
 
 			return () => {
 				clearTimeout(timer);
@@ -96,6 +97,7 @@ export function InstallPrompt() {
 			);
 			window.removeEventListener("appinstalled", handleAppInstalled);
 		};
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleInstallClick = async () => {
@@ -108,7 +110,7 @@ export function InstallPrompt() {
 		if (isIOS && isSafari) {
 			// Show iOS-specific instructions
 			alert(
-				'To install TimeTogether:\n\n1. Tap the Share button (⬆️) at the bottom\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to install the app'
+				'To install TimeTogether:\n\n1. Tap the Share button (⬆️) at the bottom\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to install the app \n\nNote: you will need to close this alert for the Share button to appear.'
 			);
 			return;
 		}
