@@ -28,7 +28,7 @@ export function TimeDisplay({
 	return (
 		<header className='bg-[#075985] text-white relative flex items-center justify-center p-6 pt-12 pb-8'>
 			<button
-				className='p-2 absolute top-12 right-6 bg-white/20 backdrop-blur border-none text-white w-11 h-11 rounded-full flex items-center justify-center cursor-pointer native-button'
+				className='z-2 p-2 absolute top-12 right-6 bg-white/20 backdrop-blur border-none text-white w-11 h-11 rounded-full flex items-center justify-center cursor-pointer native-button'
 				onClick={onSettingsToggle}
 			>
 				<Settings size={20} />
